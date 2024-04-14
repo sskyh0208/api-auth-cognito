@@ -1,0 +1,13 @@
+services:
+  terraform:
+    container_name: 'terraform'
+    build:  
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - ./.env
+    volumes:
+      - type: bind
+        source: ./src
+        target: /src
+    tty: true
