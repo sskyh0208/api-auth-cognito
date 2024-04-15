@@ -35,6 +35,12 @@ resource "aws_lambda_function" "this" {
     Env       = var.env_name
     terraform = "true"
   }
+
+  lifecycle {
+    ignore_changes = [
+      source_code_hash
+    ]
+  }
 }
 
 ##########################################################

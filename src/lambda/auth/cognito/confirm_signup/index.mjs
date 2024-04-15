@@ -19,7 +19,7 @@ const getSecretHash = (username) => {
 };
 
 export const handler = async (event) => {
-  const { username, confirmationCode } = event;
+  const { username, confirmationCode } = JSON.parse(event.body);
   
   const secretHash = getSecretHash(username);
 
