@@ -19,7 +19,10 @@ const getSecretHash = (username) => {
 };
 
 export const handler = async (event) => {
+  console.log(JSON.parse(event.body));
   const { email, password } = JSON.parse(event.body);
+  console.log(email);
+  console.log(password);
   
   const secretHash = getSecretHash(email);
 
@@ -28,6 +31,10 @@ export const handler = async (event) => {
     Username: email,
     Password: password,
     SecretHash: secretHash,
+    ValidationData: [
+      { Name: "username", Value: email },
+      { Name: "password", Value: password },
+    ],
     UserAttributes: [{ Name: "email", Value: email }],
   });
 
