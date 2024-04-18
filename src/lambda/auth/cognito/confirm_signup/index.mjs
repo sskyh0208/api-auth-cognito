@@ -7,6 +7,13 @@ import crypto from 'crypto';
 const COGNITO_CLIENT_ID = process.env.COGNITO_CLIENT_ID;
 const COGNITO_CLIENT_SECRET = process.env.COGNITO_CLIENT_SECRET;
 
+const HEADERS = {
+  "Access-Control-Allow-Credentials": "true",
+  "Access-Control-Allow-Headers" : "Content-Type",
+  "Access-Control-Allow-Origin": "http://localhost:3000",
+  "Access-Control-Allow-Methods": "POST"
+};
+
 const client = new CognitoIdentityProviderClient({});
 
 const getSecretHash = (username) => {
@@ -31,31 +38,27 @@ export const handler = async (event) => {
   });
   try {
     const response = await client.send(command);
-
+    console.log(`${username} has confirmed sign up successfully`)
     return {
       statusCode: 200,
+      headers: HEADERS,
       body: JSON.stringify(response)
     }
   } catch (error) {
     console.error(error);
 
-    if (error.__type === 'ExpiredCodeException') {
+    if (error.name === 'ExpiredCodeException' || error.name === 'CodeMismatchException') {
       return {
         statusCode: 400,
-        body: JSON.stringify({ message: 'Confirmation code has expired' })
-      }
-    }
-
-    if (error.__type === 'CodeMismatchException') {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ message: 'Invalid confirmation code' })
+        HEADERS,
+        body: JSON.stringify({ message: error.name })
       }
     }
 
     return {
       statusCode: 400,
-      body: JSON.stringify({ message: 'Something went wrong' })
+      headers: HEADERS,
+      body: JSON.stringify({ message: 'Unknown error' })
     }
   }
 };

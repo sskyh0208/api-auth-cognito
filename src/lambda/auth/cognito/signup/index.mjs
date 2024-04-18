@@ -7,6 +7,13 @@ import crypto from 'crypto';
 const COGNITO_CLIENT_ID = process.env.COGNITO_CLIENT_ID;
 const COGNITO_CLIENT_SECRET = process.env.COGNITO_CLIENT_SECRET;
 
+const HEADERS = {
+  "Access-Control-Allow-Credentials": "true",
+  "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Allow-Origin": "http://localhost:3000",
+  "Access-Control-Allow-Methods": "POST"
+};
+
 const client = new CognitoIdentityProviderClient({});
 
 const getSecretHash = (username) => {
@@ -19,11 +26,10 @@ const getSecretHash = (username) => {
 };
 
 export const handler = async (event) => {
-  console.log(JSON.parse(event.body));
   const { email, password } = JSON.parse(event.body);
   console.log(email);
   console.log(password);
-  
+
   const secretHash = getSecretHash(email);
 
   const command = new SignUpCommand({
@@ -40,31 +46,29 @@ export const handler = async (event) => {
 
   try {
     const response = await client.send(command);
-
+    console.log(`${email} has signed up successfully`)
     return {
       statusCode: 200,
+      headers: HEADERS,
       body: JSON.stringify(response)
     }
   } catch (error) {
     console.error(error);
 
-    if (error.__type === 'UsernameExistsException') {
+    if (error.name === 'UsernameExistsException'
+        || error.name === 'InvalidParameterException'
+        || error.name === 'InvalidPasswordException') {
       return {
-        statusCode: 400,
-        body: JSON.stringify({ message: 'Username already exists' })
-      }
-    }
-
-    if (error.__type === 'NotAuthorizedException') {
-      return {
-        statusCode: 401,
-        body: JSON.stringify({ message: 'Invalid credentials' })
+        statusCode: 400,  
+        headers: HEADERS,
+        body: JSON.stringify({ message: error.name })
       }
     }
 
     return {
       statusCode: 400,
-      body: JSON.stringify({ message: 'Something went wrong' })
+      headers: HEADERS,
+      body: JSON.stringify({ message: 'UnknownError' })
     }
   }
 };
