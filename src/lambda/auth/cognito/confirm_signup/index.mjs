@@ -26,6 +26,7 @@ const getSecretHash = (username) => {
 };
 
 export const handler = async (event) => {
+  console.log(event);
   const { username, confirmationCode } = JSON.parse(event.body);
   
   const secretHash = getSecretHash(username);
@@ -38,6 +39,7 @@ export const handler = async (event) => {
   });
   try {
     const response = await client.send(command);
+    console.log(response);
     console.log(`${username} has confirmed sign up successfully`)
     return {
       statusCode: 200,
@@ -46,19 +48,10 @@ export const handler = async (event) => {
     }
   } catch (error) {
     console.error(error);
-
-    if (error.name === 'ExpiredCodeException' || error.name === 'CodeMismatchException') {
-      return {
-        statusCode: 400,
-        HEADERS,
-        body: JSON.stringify({ message: error.name })
-      }
-    }
-
     return {
-      statusCode: 400,
+      statusCode: error.$metadata.httpStatusCode,
       headers: HEADERS,
-      body: JSON.stringify({ message: 'Unknown error' })
+      body: JSON.stringify({ message: error.name })
     }
   }
 };

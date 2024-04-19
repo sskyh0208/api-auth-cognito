@@ -27,8 +27,6 @@ const getSecretHash = (username) => {
 
 export const handler = async (event) => {
   const { email, password } = JSON.parse(event.body);
-  console.log(email);
-  console.log(password);
 
   const secretHash = getSecretHash(email);
 
@@ -46,6 +44,7 @@ export const handler = async (event) => {
 
   try {
     const response = await client.send(command);
+    console.log(response);
     console.log(`${email} has signed up successfully`)
     return {
       statusCode: 200,

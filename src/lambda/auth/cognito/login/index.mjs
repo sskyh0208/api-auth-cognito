@@ -53,35 +53,10 @@ export const handler = async (event) => {
     }
   } catch (error) {
     console.error(error);
-
-    if (error.name === 'NotAuthorizedException') {
-      return {
-        statusCode: 401,
-        headers: HEADERS,
-        body: JSON.stringify({ message: error.name })
-      }
-    }
-    
-    if (error.name === 'UserNotConfirmedException') {
-      return {
-        statusCode: 401,
-        headers: HEADERS,
-        body: JSON.stringify({ message: error.name })
-      }
-    }
-
-    if (error.name === 'UserNotFoundException') {
-      return {
-        statusCode: 401,
-        headers: HEADERS,
-        body: JSON.stringify({ message: error.name })
-      }
-    }
-
     return {
-      statusCode: 400,
+      statusCode: error.$metadata.httpStatusCode,
       headers: HEADERS,
-      body: JSON.stringify({ message: 'UnknownError' })
+      body: JSON.stringify({ message: error.name })
     }
   }
 };
