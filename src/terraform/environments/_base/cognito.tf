@@ -54,7 +54,8 @@ resource "aws_cognito_user_pool" "this" {
   }
 
   lambda_config {
-    custom_message = module.cognito_custom_message.arn
+    custom_message    = module.cognito_custom_message.arn
+    post_confirmation = module.cognito_post_confirmation.arn
   }
 }
 
@@ -102,6 +103,14 @@ resource "aws_lambda_permission" "custom_message" {
   statement_id  = "AllowExecutionFromCognito"
   action        = "lambda:InvokeFunction"
   function_name = module.cognito_custom_message.arn
+  principal     = "cognito-idp.amazonaws.com"
+  source_arn    = aws_cognito_user_pool.this.arn
+}
+
+resource "aws_lambda_permission" "post_confirmation" {
+  statement_id  = "AllowExecutionFromCognito"
+  action        = "lambda:InvokeFunction"
+  function_name = module.cognito_post_confirmation.arn
   principal     = "cognito-idp.amazonaws.com"
   source_arn    = aws_cognito_user_pool.this.arn
 }

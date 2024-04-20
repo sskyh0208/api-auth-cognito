@@ -1,0 +1,1 @@
+../_base/dynamodb.tf

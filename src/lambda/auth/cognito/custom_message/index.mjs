@@ -27,7 +27,6 @@ export const handler = async (event) => {
   const hms = limit.toLocaleTimeString('ja-JP', {hour12: false});
 
   const expire = `${ymd} ${hms}`;
-  console.log('Expire:', expire);
 
   const emailMessage = MESSAGE_TEMPLATE
     .replace('{{####}}', event.request.codeParameter)

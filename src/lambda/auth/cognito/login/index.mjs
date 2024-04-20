@@ -27,7 +27,6 @@ const getSecretHash = (username) => {
 };
 
 export const handler = async (event) => {
-  console.log(event);
   const { email, password } = JSON.parse(event.body);
 
   const secretHash = getSecretHash(email);

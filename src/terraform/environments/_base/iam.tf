@@ -43,7 +43,32 @@ resource "aws_iam_role" "basic_lambda" {
   assume_role_policy = data.aws_iam_policy_document.assume_lambda.json
   managed_policy_arns = [
     "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+    aws_iam_policy.custom_basic_lambda.arn
   ]
+}
+
+resource "aws_iam_policy" "custom_basic_lambda" {
+  name = "${local.name_prefix}-basic-lambda-policy"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "dynamodb:PutItem",
+          "dynamodb:GetItem",
+          "dynamodb:UpdateItem",
+          "dynamodb:DeleteItem",
+          "dynamodb:BatchWriteItem",
+          "dynamodb:BatchGetItem",
+          "dynamodb:Query",
+        ]
+        Resource = [
+          aws_dynamodb_table.db_users.arn,
+        ]
+      }
+    ]
+  })
 }
 
 resource "aws_iam_role" "api_gateway" {

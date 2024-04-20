@@ -26,21 +26,19 @@ const getSecretHash = (username) => {
 };
 
 export const handler = async (event) => {
-  console.log(event);
-  const { username, confirmationCode } = JSON.parse(event.body);
+  const { email, confirmationCode } = JSON.parse(event.body);
   
-  const secretHash = getSecretHash(username);
+  const secretHash = getSecretHash(email);
 
   const command = new ConfirmSignUpCommand({
     ClientId: COGNITO_CLIENT_ID,
-    Username: username,
+    Username: email,
     ConfirmationCode: confirmationCode,
     SecretHash: secretHash,
   });
   try {
     const response = await client.send(command);
-    console.log(response);
-    console.log(`${username} has confirmed sign up successfully`)
+    console.log(`${email} has confirmed sign up successfully`)
     return {
       statusCode: 200,
       headers: HEADERS,
