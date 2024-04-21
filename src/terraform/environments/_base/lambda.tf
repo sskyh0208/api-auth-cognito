@@ -98,3 +98,46 @@ module "cognito_post_confirmation" {
     DYNAMODB_TABLE_SK   = local.users_table_sk
   }
 }
+
+module "cognito_signout" {
+  depends_on = [ aws_dynamodb_table.db_users ]
+  source = "../../modules/lambda"
+
+  project_name      = var.project_name
+  env_name          = local.env_name
+  function_name     = "cognito-signout"
+  description       = "Lambda function to sign out with Cognito"
+  role              = aws_iam_role.cognito_lambda.arn
+  s3_bucket         = aws_s3_bucket.this.bucket
+  runtime           = "nodejs20.x"
+  function_dir      = "../../../lambda/auth/cognito/signout"
+  handler_file_name = "index.mjs"
+  handler           = "index.handler"
+  
+  environment   = {
+    COGNITO_CLIENT_ID     = aws_cognito_user_pool_client.this.id
+    COGNITO_CLIENT_SECRET = aws_cognito_user_pool_client.this.client_secret
+  }
+}
+
+module "user_get" {
+  depends_on = [ aws_dynamodb_table.db_users ]
+  source = "../../modules/lambda"
+
+  project_name      = var.project_name
+  env_name          = local.env_name
+  function_name     = "user-get"
+  description       = "Lambda function to get user details"
+  role              = aws_iam_role.basic_lambda.arn
+  s3_bucket         = aws_s3_bucket.this.bucket
+  runtime           = "nodejs20.x"
+  function_dir      = "../../../lambda/user/get"
+  handler_file_name = "index.mjs"
+  handler           = "index.handler"
+  
+  environment = {
+    DYNAMODB_TABLE_NAME = aws_dynamodb_table.db_users.name
+    DYNAMODB_TABLE_PK   = local.users_table_pk
+    DYNAMODB_TABLE_SK   = local.users_table_sk
+  }
+}

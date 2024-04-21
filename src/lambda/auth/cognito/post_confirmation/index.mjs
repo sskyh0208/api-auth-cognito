@@ -28,8 +28,8 @@ export const handler = async (event) => {
     id: username,
     email: email,
     profile_image: DEFAULT_PROFILE_IMAGE,
-    createdAt: jstNow,
-    updatedAt: jstNow
+    created_at: jstNow,
+    updated_at: jstNow
   };
   console.log(user);
   
